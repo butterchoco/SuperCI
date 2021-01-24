@@ -7,6 +7,7 @@ const app = next({ dev })
 const handle = app.getRequestHandler()
 
 const nodemailer = require('nodemailer')
+const emailTemplate = require('./util/template')
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -38,13 +39,13 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
               from: process.env.NODEMAILER_EMAIL,
               to: email,
               subject: `[PENTING] Aktivasi akun kamu sekarang`,
-              text: "Selamat datang",
+              html: emailTemplate,
             }
 
             console.log(process.env.NODEMAILER_EMAIL)
 
-            transporter.sendMail(message, (error, info) =>
-              error ? console.log(error) : console.log(info)
+            transporter.sendMail(message, () =>
+              res.end()
             )
         })
     } else {
