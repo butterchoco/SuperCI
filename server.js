@@ -24,6 +24,7 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
             console.log('failed', error)
             res.write('badddd')
           })
+          res.end()
     } else {
       handle(req, res, parsedUrl)
     }

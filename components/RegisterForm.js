@@ -15,8 +15,8 @@ const RegisterForm = () => {
       body: JSON.stringify({ name: email.split("@")[0], email: email }),
     }).then(() => {
       alert("Success")
-    }).catch(() => {
-      alert("Failed")
+    }).catch((e) => {
+      alert("Failed : "+ e)
     })
   };
 
