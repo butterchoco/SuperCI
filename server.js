@@ -19,10 +19,10 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
         console.log(res.body)
         mailer({ email:'supri.contact@gmail.com', name:"", text: "hello" }).then(() => {
             console.log('success')
-            res.send('success')
+            res.write('success')
           }).catch((error) => {
             console.log('failed', error)
-            res.send('badddd')
+            res.write('badddd')
           })
     } else {
       handle(req, res, parsedUrl)
