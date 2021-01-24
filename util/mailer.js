@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 const send = ({ email, name }) => {
   const from = name && email ? `${name} <${email}>` : `${name || email}`
   const message = {
-    from: process.env.NODEMAILER_EMAIL,
+    from: "qwertyvisual.contact@gmail.com",
     to: email,
     subject: `[PENTING] Aktivasi akun kamu sekarang`,
     text: "Selamat datang",
