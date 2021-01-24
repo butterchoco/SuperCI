@@ -25,7 +25,7 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
             const response = Buffer.concat(body).toString()
             const {email, name} = JSON.parse(response)
             console.log(email, name)
-            mailer({ email, name, text: "hello" }).then(() => {
+            mailer({ email, name }).then(() => {
                 res.write('Success')
                 res.end()
               }).catch((error) => {
