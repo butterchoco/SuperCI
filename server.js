@@ -29,8 +29,9 @@ app.prepare().then(() => {
     })
   })
 
-  server.listen(process.env.PORT|3000, (err) => {
+  const port = process.env.PORT|3000
+  server.listen(port, (err) => {
     if (err) throw err
-    console.log('> Read on http://localhost:3000')
+    console.log('> Read on http://localhost:' + port)
   })
 })
