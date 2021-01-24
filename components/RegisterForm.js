@@ -1,4 +1,4 @@
-import { Container, Box, Button } from "@chakra-ui/react";
+import { Container, Divider, Button, Heading } from "@chakra-ui/react";
 import { useState } from "react";
 
 import NormalInput from "@/components/NormalInput";
@@ -26,23 +26,27 @@ const RegisterForm = () => {
   };
 
   return (
-    <Container bg="white" maxW="xl" padding="4">
-      <NormalInput
-        title="Email"
-        type="email"
-        value={email}
-        setValue={setEmail}
-      />
-      <PasswordInput title="Password" value={password} setValue={setPassword} />
-      <Button
-        colorScheme="teal"
-        variant="solid"
-        marginTop={4}
-        onClick={sendEmail}
-        disabled={isValidate()}
-      >
-        Submit
-      </Button>
+      <Container bg="white" maxW="xl" padding="4">
+        <Heading as="h5" size="sm" marginBottom={4}>
+          Registrasi Akun
+        </Heading>
+        <Divider marginBottom={4}/>
+        <NormalInput
+          title="Email"
+          type="email"
+          value={email}
+          setValue={setEmail}
+          />
+        <PasswordInput title="Password" value={password} setValue={setPassword} />
+        <Button
+          colorScheme="teal"
+          variant="solid"
+          marginTop={4}
+          onClick={sendEmail}
+          disabled={isValidate()}
+          >
+          Submit
+        </Button>
     </Container>
   );
 };
