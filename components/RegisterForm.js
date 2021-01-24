@@ -12,7 +12,7 @@ const RegisterForm = () => {
     fetch("/api/activation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: email.split("@")[0], email: email }),
+      body: JSON.stringify({ email: email }),
     }).then(() => {
       alert("Success")
     }).catch((e) => {

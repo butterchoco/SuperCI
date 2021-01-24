@@ -3,19 +3,19 @@ const nodemailer = require('nodemailer')
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "supri.contact@gmail.com",
-      pass: "isTiGHfar3x"
+      user: "qwertyvisual.contact@gmail.com",
+      pass: "MemulaiYangBaru2121"
     }
 })
 
-const send = ({ email, name, text }) => {
-  const from = name && email ? `${name} <${email}>` : `${name || email}`
+const send = ({ email, text }) => {
+  const recipient = email.split("@")[0]
   const message = {
-    from,
-    to: 'supri.contact@gmail.com',
-    subject: `New message from ${from}`,
+    from: "noreply@qwertyvisual.com",
+    to: recipient,
+    subject: `[PENTING] Aktivasi akun kamu untuk melanjutkan!`,
     text,
-    replyTo: from
+    replyTo: "qwertyvisual.contact@gmail.com"
   }
 
   return new Promise((resolve, reject) => {
