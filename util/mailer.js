@@ -8,14 +8,14 @@ const transporter = nodemailer.createTransport({
     }
 })
 
-const send = ({ email }) => {
-  const recipient = email.split("@")[0]
+const send = ({ email, name, text }) => {
+  const from = name && email ? `${name} <${email}>` : `${name || email}`
   const message = {
-    from: "noreply@qwertyvisual.com",
-    to: recipient,
-    subject: `[PENTING] Aktivasi akun kamu untuk melanjutkan!`,
-    text: "Selamat anda sudah berhasil mengaktivasi akun.",
-    replyTo: "qwertyvisual.contact@gmail.com"
+    from,
+    to: 'supri.contact@gmail.com',
+    subject: `New message from ${from}`,
+    text,
+    replyTo: from
   }
 
   return new Promise((resolve, reject) => {
