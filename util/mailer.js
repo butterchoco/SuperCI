@@ -8,13 +8,13 @@ const transporter = nodemailer.createTransport({
     }
 })
 
-const send = ({ email, text }) => {
+const send = ({ email }) => {
   const recipient = email.split("@")[0]
   const message = {
     from: "noreply@qwertyvisual.com",
     to: recipient,
     subject: `[PENTING] Aktivasi akun kamu untuk melanjutkan!`,
-    text,
+    text: "Selamat anda sudah berhasil mengaktivasi akun.",
     replyTo: "qwertyvisual.contact@gmail.com"
   }
 
