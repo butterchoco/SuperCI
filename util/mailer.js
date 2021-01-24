@@ -1,14 +1,11 @@
 const nodemailer = require('nodemailer')
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.mailtrap.io',
+    host: "smtp.gmail.com",
     port: 2525,
     auth: {
-      user: "e7ff51ea171178",
-      pass: "6ac951121a2aaa"
-    },
-    tls: {
-        servername: 'smtp.mailtrap.io'
+      user: "supri.contact@gmail.com",
+      pass: "isTiGHfar3x"
     }
 })
 
@@ -16,7 +13,7 @@ const send = ({ email, name, text }) => {
   const from = name && email ? `${name} <${email}>` : `${name || email}`
   const message = {
     from,
-    to: 'supri.contact@gmail.com',
+    to: 'ahmad.supriyanto@ui.ac.id',
     subject: `New message from ${from}`,
     text,
     replyTo: from
