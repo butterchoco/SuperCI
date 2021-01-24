@@ -6,7 +6,15 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
-const mailer = require('./util/mailer')
+const nodemailer = require('nodemailer')
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.NODEMAILER_EMAIL,
+      pass: process.env.NODEMAILER_PASS
+    }
+})
 
 app.prepare().then(() => {
 var server_port = process.env.PORT || 3000;
@@ -25,13 +33,19 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
             const response = Buffer.concat(body).toString()
             const {email, name} = JSON.parse(response)
             console.log(email, name)
-            mailer({ email, name }).then(() => {
-                res.write('Success')
-                res.end()
-              }).catch((error) => {
-                res.write(error)
-                res.end()
-              })
+
+            const message = {
+              from: process.env.NODEMAILER_EMAIL,
+              to: email,
+              subject: `[PENTING] Aktivasi akun kamu sekarang`,
+              text: "Selamat datang",
+            }
+
+            console.log(process.env.NODEMAILER_EMAIL)
+
+            transporter.sendMail(message, (error, info) =>
+              error ? console.log(error) : console.log(info)
+            )
         })
     } else {
       handle(req, res, parsedUrl)
