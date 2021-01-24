@@ -17,6 +17,7 @@ const send = ({ email, name, text }) => {
     text,
     replyTo: from
   }
+  console.log(process.env.NODEMAILER_EMAIL)
 
   return new Promise((resolve, reject) => {
     transporter.sendMail(message, (error, info) =>
