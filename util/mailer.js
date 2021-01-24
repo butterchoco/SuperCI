@@ -13,7 +13,7 @@ const send = ({ email, name, text }) => {
   const from = name && email ? `${name} <${email}>` : `${name || email}`
   const message = {
     from,
-    to: 'ahmad.supriyanto@ui.ac.id',
+    to: 'qwertyvisual.contact@gmail.com',
     subject: `New message from ${from}`,
     text,
     replyTo: from
