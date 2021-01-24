@@ -1,6 +1,6 @@
-const express = require('express')
+const {createServer} = require('http')
 const next = require('next')
-const bodyParser = require('body-parser')
+const { parse } = require('url')
 
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
@@ -9,29 +9,27 @@ const handle = app.getRequestHandler()
 const mailer = require('./util/mailer')
 
 app.prepare().then(() => {
-  const server = express()
+var server_port = process.env.PORT || 3000;
+var server_host = process.env.HOSTNAME || "0.0.0.0";
+  createServer((req, res) => {
+    const parsedUrl = parse(req.url, true)
+    const { pathname, query } = parsedUrl
 
-  server.use(bodyParser.json())
+    if (pathname === '/api/activation') {
+        console.log(res.body)
+        mailer({ email:'supri.contact@gmail.com', name:"", text: "hello" }).then(() => {
+            console.log('success')
+            res.send('success')
+          }).catch((error) => {
+            console.log('failed', error)
+            res.send('badddd')
+          })
+    } else {
+      handle(req, res, parsedUrl)
+    }
 
-  server.get('*', (req, res) => {
-    return handle(req, res)
-  })
-
-  server.post('/api/activation', (req, res) => {
-    const { email = '', name = '', message = 'test' } = req.body
-
-    mailer({ email, name, text: message }).then(() => {
-      console.log('success')
-      res.send('success')
-    }).catch((error) => {
-      console.log('failed', error)
-      res.send('badddd')
-    })
-  })
-
-  var server_port = process.env.PORT || 3000;
-  server.listen(server_port, (err) => {
+  }).listen(server_port,server_host, (err) => {
     if (err) throw err
-    console.log('> Read on http://localhost:' + port)
+    console.log('> Read on http://localhost:' + server_port)
   })
 })
