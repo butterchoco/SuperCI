@@ -9,10 +9,11 @@ const RegisterForm = () => {
   const [password, setPassword] = useState("");
 
   const sendEmail = () => {
+    console.log(email)
     fetch("/api/activation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email }),
+      body: JSON.stringify({ email, name: email.split("@")[0] }),
     }).then(() => {
       alert("Success")
     }).catch((e) => {
