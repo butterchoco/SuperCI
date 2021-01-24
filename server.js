@@ -22,7 +22,8 @@ var server_host = process.env.HOSTNAME || "0.0.0.0";
 
     if (pathname === '/api/activation') {
         return req.on("end", () => {
-            const {email, name} = Buffer.concat(body).toJSON()
+            const response = Buffer.concat(body).toString()
+            const {email, name} = JSON.parse(response)
             console.log(email, name)
             mailer({ email, name, text: "hello" }).then(() => {
                 res.write('Success')
