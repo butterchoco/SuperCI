@@ -13,18 +13,24 @@ var server_port = process.env.PORT || 3000;
 var server_host = process.env.HOSTNAME || "0.0.0.0";
   createServer((req, res) => {
     const parsedUrl = parse(req.url, true)
-    const { pathname, query } = parsedUrl
+    const { pathname } = parsedUrl
+
+    const body = []
+    req.on("data", (chunk) => {
+        body.push(chunk);
+    })
 
     if (pathname === '/api/activation') {
-        console.log(res.body)
-        mailer({ email:'supri.contact@gmail.com', name:"", text: "hello" }).then(() => {
-            console.log('success')
-            res.write('success')
-          }).catch((error) => {
-            console.log('failed', error)
-            res.write('badddd')
-          })
-          res.end()
+        return req.on("end", () => {
+            const {email, name} = Buffer.concat(body).toJSON()
+            mailer({ email, name, text: "hello" }).then(() => {
+                res.write('Success')
+                res.end()
+              }).catch((error) => {
+                res.write(error)
+                res.end()
+              })
+        })
     } else {
       handle(req, res, parsedUrl)
     }
