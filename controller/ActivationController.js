@@ -10,24 +10,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const ActivationController = (request, response) => {
-  const body = [];
-  req.on("data", (chunk) => {
-    body.push(chunk);
-  });
-  return req.on("end", () => {
-    const response = Buffer.concat(body).toString();
-    const { email, name } = JSON.parse(response);
+const ActivationController = (handle, response) => {
+  const { email, name } = response;
 
-    const message = {
-      from: process.env.NODEMAILER_EMAIL,
-      to: email,
-      subject: `[PENTING] Aktivasi akun kamu sekarang`,
-      html: emailTemplate,
-    };
+  const message = {
+    from: process.env.NODEMAILER_EMAIL,
+    to: email,
+    subject: `[PENTING] Aktivasi akun kamu sekarang`,
+    html: emailTemplate,
+  };
 
-    transporter.sendMail(message, () => res.end());
-  });
+  transporter.sendMail(message, () => handle.end());
 };
 
 module.exports = ActivationController;
