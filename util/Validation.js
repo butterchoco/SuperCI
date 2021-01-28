@@ -169,7 +169,7 @@ class Validation {
       const error = {};
       for (const field in this.allData) {
         this[field].touch();
-        error[field] = this[field].error;
+        if (this[field].error !== "") error[field] = this[field].error;
       }
       if (Object.values(error).length > 0) reject(error);
       else resolve("Sukses");
