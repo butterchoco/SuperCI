@@ -23,7 +23,7 @@ import PasswordInput from "@/components/PasswordInput";
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmationPassword, setConfirmationPassword] = useState("");
+  const [konfirmasiPassword, setKonfirmasiPassword] = useState("");
   const [error, setError] = useState({});
 
   const validation = new Validation({
@@ -42,8 +42,8 @@ const RegisterForm = () => {
         "hasSpecialCase",
       ],
     },
-    confirmationPassword: {
-      value: confirmationPassword,
+    konfirmasiPassword: {
+      value: konfirmasiPassword,
       validate: ["required", "sameAs-password"],
     },
   });
@@ -65,7 +65,6 @@ const RegisterForm = () => {
           });
       })
       .catch((error) => {
-        console.log(error);
         setError(error);
       });
   };
@@ -144,10 +143,10 @@ const RegisterForm = () => {
       />
       <PasswordInput
         title="Konfirmasi Password"
-        value={confirmationPassword}
-        setValue={setConfirmationPassword}
+        value={konfirmasiPassword}
+        setValue={setKonfirmasiPassword}
         isRequired={true}
-        error={error["confirmationPassword"]}
+        error={error["konfirmasiPassword"]}
       />
       <Button
         colorScheme="teal"

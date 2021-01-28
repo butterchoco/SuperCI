@@ -75,83 +75,91 @@ class Validation {
       };
       this[field].checkIsRequired = function () {
         if (!isRequired(this.value)) {
-          const message = `Field ${this.name} harus diisi terlebih dahulu`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} harus diisi terlebih dahulu`;
+          this.error = message;
         }
       };
 
       this[field].checkMinCharLength = function (len) {
         if (!minCharLength(this.value, len)) {
-          const message = `Field ${this.name} setidaknya memiliki ${len} karakter`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki ${len} karakter`;
+          this.error = message;
         }
       };
 
       this[field].checkMinValLength = function (len) {
         if (!minValLength(this.value, len)) {
-          const message = `Field ${this.name} setidaknya memiliki nilai sebanyak ${len}`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki nilai sebanyak ${len}`;
+          this.error = message;
         }
       };
 
       this[field].checkIsEmail = function () {
         if (!isEmail(this.value)) {
-          const message = `Field ${this.name} harus memiliki format yang valid`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} harus memiliki format yang valid`;
+          this.error = message;
         }
       };
 
       this[field].checkHasLowerCase = function () {
         if (!hasLowerCase(this.value)) {
-          const message = `Field ${this.name} setidaknya memiliki satu huruf kecil`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki satu huruf kecil`;
+          this.error = message;
         }
       };
 
       this[field].checkHasUpperCase = function () {
         if (!hasUpperCase(this.value)) {
-          const message = `Field ${this.name} setidaknya memiliki satu huruf kapital`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki satu huruf kapital`;
+          this.error = message;
         }
       };
 
       this[field].checkHasNumericCase = function () {
         if (!hasNumericCase(this.value)) {
-          const message = `Field ${this.name} setidaknya memiliki satu angka`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki satu angka`;
+          this.error = message;
         }
       };
 
       this[field].checkHasSpecialCase = function () {
         if (!hasSpecialCase(this.value)) {
-          const message = `Field ${this.name} setidaknya memiliki satu simbol`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Field ${this.reformatFieldName(
+            this.name
+          )} setidaknya memiliki satu simbol`;
+          this.error = message;
         }
       };
 
       this[field].checkIsSameAs = function (data) {
         if (!isSameAs(this.value, data.value)) {
-          const message = `Pastikan field ${data.name} harus sama dengan field ${this.name}`;
-          if (this.error === "") {
-            this.error = message;
-          }
+          const message = `Pastikan field ${this.reformatFieldName(
+            data.name
+          )} harus sama dengan field ${this.reformatFieldName(this.name)}`;
+          this.error = message;
         }
+      };
+
+      this[field].reformatFieldName = function (fieldName) {
+        return fieldName
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, function (str) {
+            return str.toUpperCase();
+          });
       };
     }
   }
