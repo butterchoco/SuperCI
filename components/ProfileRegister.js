@@ -30,7 +30,7 @@ const BiodataForm = () => {
       title="Perusahaan"
       type="text"
       value={company}
-      setValue={setPhoneNumber}
+      setValue={setCompany}
     />
   </Container>
 }

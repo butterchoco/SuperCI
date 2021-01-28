@@ -7,11 +7,20 @@ import {
   Input,
 } from "@chakra-ui/react";
 
-function SecretInput({ title, type, helper, value, setValue, error }) {
+function SecretInput({
+  title,
+  type,
+  helper,
+  value,
+  setValue,
+  error,
+  isRequired,
+}) {
   return (
     <FormControl
       id={title.split(" ").join("-").toLowerCase()}
-      isInvalid={error !== undefined && error !== null}
+      pt={2}
+      isInvalid={error !== undefined && error !== null && error.length > 0}
     >
       <FormLabel>{title}</FormLabel>
       <InputGroup size="md">
@@ -21,6 +30,7 @@ function SecretInput({ title, type, helper, value, setValue, error }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={"Masukkan " + title}
+          isRequired={isRequired}
         />
       </InputGroup>
       <FormErrorMessage>{error}</FormErrorMessage>
