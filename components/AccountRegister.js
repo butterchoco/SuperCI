@@ -9,14 +9,14 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import { Validation } from "@/util/Validation";
 import {
-  Validation,
   minCharLength,
   hasLowerCase,
   hasUpperCase,
   hasNumericCase,
   hasSpecialCase,
-} from "@/util/Validation";
+} from "@/util/Validator";
 import NormalInput from "@/components/NormalInput";
 import PasswordInput from "@/components/PasswordInput";
 
@@ -29,13 +29,13 @@ const RegisterForm = () => {
   const validation = new Validation({
     email: {
       value: email,
-      validate: ["required", "isEmail"],
+      validation: ["required", "isEmail"],
     },
     password: {
       value: password,
-      validate: [
+      validation: [
         "required",
-        "minCharLength-8",
+        "minCharLength:8",
         "hasLowerCase",
         "hasUpperCase",
         "hasNumericCase",
@@ -44,7 +44,7 @@ const RegisterForm = () => {
     },
     konfirmasiPassword: {
       value: konfirmasiPassword,
-      validate: ["required", "sameAs-password"],
+      validation: ["required", "sameAs:password"],
     },
   });
 

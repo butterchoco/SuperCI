@@ -1,165 +1,103 @@
-function minCharLength(data, len) {
-  return data.length >= len;
-}
-
-function minValLength(data, len) {
-  return data >= len;
-}
-
-function isRequired(data) {
-  return data !== null && data !== undefined && data !== "";
-}
-
-function isEmail(data) {
-  return data.includes("@") && data.split("@")[1].includes(".");
-}
-
-function hasLowerCase(data) {
-  const lowercaseCharPassword = new RegExp("^(?=.*[a-z])");
-  return lowercaseCharPassword.test(data);
-}
-
-function hasUpperCase(data) {
-  const uppercaseCharPassword = new RegExp("^(?=.*[A-Z])");
-  return uppercaseCharPassword.test(data);
-}
-
-function hasNumericCase(data) {
-  const numericCharPassword = new RegExp("^(?=.*[0-9])");
-  return numericCharPassword.test(data);
-}
-
-function hasSpecialCase(data) {
-  const specialCharPassword = new RegExp("^(?=.*[!@#$%^&*()])");
-  return specialCharPassword.test(data);
-}
-
-function isSameAs(data, dataCompare) {
-  return data === dataCompare;
-}
+const ValidationErrorMessage = require("./ValidationErrorMessage");
+const {
+  minCharLength,
+  minValLength,
+  isEmail,
+  hasLowerCase,
+  hasUpperCase,
+  hasNumericCase,
+  hasSpecialCase,
+  isSameAs,
+  isRequired,
+} = require("./Validator");
 
 class Validation {
-  constructor(data, language = "id") {
-    this.allData = data;
-    for (const field in data) {
-      this[field] = data[field];
+  constructor(allData, language = "id") {
+    this.allData = allData;
+    for (const field in allData) {
+      this[field] = allData[field];
       this[field].name = field;
-      this[field].error = "";
-      this[field].allData = Object.keys(this.allData).map((data) => {
-        return { name: data, value: this.allData[data].value };
+      this[field].language = language;
+      this[field].allData = Object.keys(allData).map((data) => {
+        return { name: data, value: allData[data].value };
       });
       this[field].touch = function () {
-        for (const node of this.validate) {
-          const validation = node.split("-");
-          if (validation[0] === "required") this.checkIsRequired();
-          else if (validation[0] === "isEmail") this.checkIsEmail();
-          else if (validation[0] === "minCharLength")
-            this.checkMinCharLength(validation[1]);
-          else if (validation[0] === "minValLength")
-            this.checkMinValLength(validation[1]);
-          else if (validation[0] === "hasLowerCase")
-            this.checkHasLowerCase(validation[1]);
-          else if (validation[0] === "hasUpperCase")
-            this.checkHasUpperCase(validation[1]);
-          else if (validation[0] === "hasNumericCase")
-            this.checkHasNumericCase(validation[1]);
-          else if (validation[0] === "hasSpecialCase")
-            this.checkHasSpecialCase(validation[1]);
-          else if (validation[0] === "sameAs") {
-            const data = this.allData.find(
-              ({ name }) => name === validation[1]
-            );
-            this.checkIsSameAs(data);
+        return new Promise((resolve, reject) => {
+          for (const node of this.validation) {
+            const validation = node.split(":");
+            if (validation[0] === "required") {
+              if (!isRequired(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "required"
+                ];
+                return;
+              }
+            } else if (validation[0] === "isEmail") {
+              if (!isEmail(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "isEmail"
+                ];
+                return;
+              }
+            } else if (validation[0] === "minCharLength") {
+              if (!minCharLength(this.value, validation[1])) {
+                this.error = ValidationErrorMessage(this.language, {
+                  field,
+                  value: validation[1],
+                })["minCharLength"];
+                return;
+              }
+            } else if (validation[0] === "minValLength") {
+              if (!minValLength(this.value, validation[1])) {
+                this.error = ValidationErrorMessage(this.language, {
+                  field,
+                  value: validation[1],
+                })["minValLength"];
+                return;
+              }
+            } else if (validation[0] === "hasLowerCase") {
+              if (!hasLowerCase(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "hasLowerCase"
+                ];
+              }
+            } else if (validation[0] === "hasUpperCase") {
+              if (!hasUpperCase(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "hasUpperCase"
+                ];
+                return;
+              }
+            } else if (validation[0] === "hasNumericCase") {
+              if (!hasNumericCase(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "hasNumericCase"
+                ];
+                return;
+              }
+            } else if (validation[0] === "hasSpecialCase") {
+              if (!hasSpecialCase(this.value)) {
+                this.error = ValidationErrorMessage(this.language, { field })[
+                  "hasSpecialCase"
+                ];
+                return;
+              }
+            } else if (validation[0] === "sameAs") {
+              const data = this.allData.find(
+                ({ name }) => name === validation[1]
+              );
+              if (!isSameAs(this.value, data.value)) {
+                this.error = ValidationErrorMessage(this.language, {
+                  field,
+                  otherField: validation[1],
+                })["sameAs"];
+                return;
+              }
+            }
           }
-        }
-      };
-      this[field].checkIsRequired = function () {
-        if (!isRequired(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} harus diisi terlebih dahulu`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkMinCharLength = function (len) {
-        if (!minCharLength(this.value, len)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki ${len} karakter`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkMinValLength = function (len) {
-        if (!minValLength(this.value, len)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki nilai sebanyak ${len}`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkIsEmail = function () {
-        if (!isEmail(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} harus memiliki format yang valid`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkHasLowerCase = function () {
-        if (!hasLowerCase(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki satu huruf kecil`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkHasUpperCase = function () {
-        if (!hasUpperCase(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki satu huruf kapital`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkHasNumericCase = function () {
-        if (!hasNumericCase(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki satu angka`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkHasSpecialCase = function () {
-        if (!hasSpecialCase(this.value)) {
-          const message = `Field ${this.reformatFieldName(
-            this.name
-          )} setidaknya memiliki satu simbol`;
-          this.error = message;
-        }
-      };
-
-      this[field].checkIsSameAs = function (data) {
-        if (!isSameAs(this.value, data.value)) {
-          const message = `Pastikan field ${this.reformatFieldName(
-            data.name
-          )} harus sama dengan field ${this.reformatFieldName(this.name)}`;
-          this.error = message;
-        }
-      };
-
-      this[field].reformatFieldName = function (fieldName) {
-        return fieldName
-          .replace(/([A-Z])/g, " $1")
-          .replace(/^./, function (str) {
-            return str.toUpperCase();
-          });
+          if (Object.values(this.error).length > 0) reject(this.error);
+          else resolve("Sukses");
+        });
       };
     }
   }
@@ -179,12 +117,4 @@ class Validation {
 
 module.exports = {
   Validation,
-  minCharLength,
-  minValLength,
-  isEmail,
-  hasLowerCase,
-  hasUpperCase,
-  hasNumericCase,
-  hasSpecialCase,
-  isSameAs,
 };
