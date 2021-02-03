@@ -20,7 +20,7 @@ import {
 import NormalInput from "@/components/NormalInput";
 import PasswordInput from "@/components/PasswordInput";
 
-const RegisterForm = () => {
+const AccountRegister = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [konfirmasiPassword, setKonfirmasiPassword] = useState("");
@@ -160,4 +160,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm;
+export default AccountRegister;

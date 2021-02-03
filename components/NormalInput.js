@@ -7,7 +7,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 
-function SecretInput({
+function NormalInput({
   title,
   type,
   helper,
@@ -39,4 +39,4 @@ function SecretInput({
   );
 }
 
-export default SecretInput;
+export default NormalInput;
