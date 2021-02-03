@@ -75,16 +75,24 @@ class PuppeteerManager {
 
   login = async () => {
     console.log("GOTO: Login");
+    await this.loginGoto();
+    await this.deleteCookie();
     let cookies = { siakng_cc: null };
     while (cookies["siakng_cc"] === null) {
-      await this.loginGoto();
-      await this.deleteCookie();
+      await this.reload();
       cookies = await this.getCredential();
     }
   };
 
   loginGoto = async () => {
-    await this.goto("https://academic.ui.ac.id/main/Authentication/");
+    let LoginPage = await this.goto(
+      "https://academic.ui.ac.id/main/Authentication/"
+    );
+    while (!LoginPage.includes("Next Generation")) {
+      console.log("Reloading Login Page....");
+      LoginPage = await this.reload();
+      this.page.waitForSelector("div");
+    }
   };
 
   getCredential = async () => {
@@ -96,7 +104,7 @@ class PuppeteerManager {
     await this.page.waitForSelector("div");
     const pageSource = await this.getPageSource();
     if (pageSource.includes("Login Failed")) {
-      console.log("FIX YOUR USERNAME AND PASSWORD");
+      this.message = "FIX YOUR USERNAME AND PASSWORD";
       this.browser.close();
     }
     return await this.getCookie();
@@ -117,12 +125,12 @@ class PuppeteerManager {
     );
     let count = 0;
     while (!IRSPage.includes("Daftar Mata Kuliah yang Ditawarkan")) {
+      console.log("Reloading IRS Page....");
       if (isNeedRelogin(IRSPage, count)) {
         this.login();
       }
-      this.reload();
+      IRSPage = await this.reload();
       this.page.waitForSelector("div");
-      IRSPage = await this.getPageSource();
       count++;
     }
     await this.isiIRS();
