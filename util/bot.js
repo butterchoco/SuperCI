@@ -244,6 +244,11 @@ const bot = (secret) => {
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--disable-gpu",
+        "--proxy-server='direct://'",
+        "--proxy-bypass-list=*",
         "--window-size=1196x932",
       ],
       headless: !secret.gui,
