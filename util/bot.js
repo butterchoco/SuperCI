@@ -67,6 +67,7 @@ class PuppeteerManager {
         await this.attackIRSPage();
         resolve(this.message);
       } catch (e) {
+        console.log(e);
         console.log("BOT FAILED");
         reject("Gagal karena alasan yang tidak menentu.");
       }
@@ -88,7 +89,7 @@ class PuppeteerManager {
     let LoginPage = await this.goto(
       "https://academic.ui.ac.id/main/Authentication/"
     );
-    while (!LoginPage.includes("Next Generation")) {
+    while (!LoginPage.includes("NextGeneration")) {
       console.log("Reloading Login Page....");
       LoginPage = await this.reload();
       this.page.waitForSelector("div");
@@ -211,9 +212,9 @@ class PuppeteerManager {
     try {
       const pagePromise = await this.page.goto(path, {
         waitUntil: "domcontentloaded",
-        timeout: 5000,
+        timeout: 0,
       });
-      pageSource = pagePromise.text();
+      pageSource = await pagePromise.text();
     } catch (e) {
       console.log(e);
       await goto(path);
@@ -223,10 +224,19 @@ class PuppeteerManager {
   };
 
   reload = async () => {
-    await this.page.reload({
-      waitUntil: "domcontentloaded",
-      timeout: 2000,
-    });
+    let pageSource = "";
+    try {
+      const pagePromise = await this.page.reload({
+        waitUntil: "networkidle0",
+        timeout: 0,
+      });
+      pageSource = await pagePromise.text();
+    } catch (e) {
+      console.log(e);
+      await reload();
+    } finally {
+      return pageSource;
+    }
   };
 
   getPageSource = async () => {
