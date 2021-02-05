@@ -2,7 +2,8 @@ const puppeteer = require("puppeteer");
 const { performance } = require("perf_hooks");
 
 class PuppeteerManager {
-  constructor(browser, page, secret) {
+  constructor(browser, page, socket, secret) {
+    this.socket = socket;
     this.message = "";
     this.secret = secret;
     this.browser = browser;
@@ -60,22 +61,28 @@ class PuppeteerManager {
     });
   };
 
-  startBot = () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await this.login();
-        await this.attackIRSPage();
-        resolve(this.message);
-      } catch (e) {
-        console.log(e);
-        console.log("BOT FAILED");
-        reject("Gagal karena alasan yang tidak menentu.");
-      }
-    });
+  startBot = async () => {
+    try {
+      await this.login();
+      await this.attackIRSPage();
+      this.socket.emit("bot.message", {
+        title: "Progress",
+        content: this.message,
+      });
+    } catch (e) {
+      console.log(e);
+      this.socket.emit("bot.message", {
+        title: "Finished",
+        content: "BOT FAILED",
+      });
+    }
   };
 
   login = async () => {
-    console.log("GOTO: Login");
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "GOTO: Login",
+    });
     await this.loginGoto();
     await this.deleteCookie();
     let cookies = { siakng_cc: null };
@@ -90,7 +97,10 @@ class PuppeteerManager {
       "https://academic.ui.ac.id/main/Authentication/"
     );
     while (!LoginPage.includes("NextGeneration")) {
-      console.log("Reloading Login Page....");
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "Reloading Login Page....",
+      });
       LoginPage = await this.reload();
       this.page.waitForSelector("div");
     }
@@ -120,13 +130,19 @@ class PuppeteerManager {
   };
 
   attackIRSPage = async () => {
-    console.log("GOTO: Ubah IRS");
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "GOTO: Ubah IRS",
+    });
     let IRSPage = await this.goto(
       "https://academic.ui.ac.id/main/CoursePlan/CoursePlanEdit"
     );
     let count = 0;
     while (!IRSPage.includes("Daftar Mata Kuliah yang Ditawarkan")) {
-      console.log("Reloading IRS Page....");
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "Reloading IRS Page....",
+      });
       if (isNeedRelogin(IRSPage, count)) {
         this.login();
       }
@@ -156,20 +172,32 @@ class PuppeteerManager {
         return true;
       }, subject);
       if (!isSubjectExist) {
-        console.log("NOT FOUND: " + subject);
+        this.socket.emit("bot.message", {
+          title: "Progress...",
+          content: "NOT FOUND: " + subject,
+        });
         SubjectNotFound += `<li>${subject}</li>`;
       }
-      console.log("FINISHED CHECKING: " + subject);
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "FINISHED CHECKING: " + subject,
+      });
     }
     return SubjectNotFound;
   };
 
   isiIRS = async () => {
     const t0 = performance.now();
-    console.log("CHECKING: Subject");
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "CHECKING: Subject",
+    });
     const SubjectNotFound = await this.checkingSubject();
 
-    console.log("SUBMITING: Subject");
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "SUBMITING: Subject",
+    });
     await this.page.click("[name='submit']");
     await this.page.waitForSelector("#ti_h", { timeout: 0 });
 
@@ -196,7 +224,10 @@ class PuppeteerManager {
 
     if (isFinish) {
       const t1 = performance.now();
-      console.log("BOT FINISHED");
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "BOT FINISHED",
+      });
       this.message =
         "Pengisian IRS berhasil diisi dalam waktu " +
         (t1 - t0) +
@@ -216,7 +247,10 @@ class PuppeteerManager {
       });
       pageSource = await pagePromise.text();
     } catch (e) {
-      console.log(e);
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "Reloading...",
+      });
       await goto(path);
     } finally {
       return pageSource;
@@ -232,7 +266,10 @@ class PuppeteerManager {
       });
       pageSource = await pagePromise.text();
     } catch (e) {
-      console.log(e);
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "Reloading...",
+      });
       await reload();
     } finally {
       return pageSource;
@@ -256,33 +293,24 @@ class PuppeteerManager {
   };
 }
 
-const bot = (secret) => {
-  return new Promise(async (resolve, reject) => {
-    const options = {
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--disable-gpu",
-        "--proxy-server='direct://'",
-        "--proxy-bypass-list=*",
-        "--window-size=1196x932",
-      ],
-      headless: !secret.gui,
-    };
-    const browser = await puppeteer.launch(options);
-    const page = await browser.newPage();
-    const pupMan = new PuppeteerManager(browser, page, secret);
-    pupMan
-      .startBot()
-      .then((res) => {
-        resolve(res);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+const bot = async (socket, secret) => {
+  const options = {
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--disable-gpu",
+      "--proxy-server='direct://'",
+      "--proxy-bypass-list=*",
+      "--window-size=1196x932",
+    ],
+    headless: !secret.gui,
+  };
+  const browser = await puppeteer.launch(options);
+  const page = await browser.newPage();
+  const pupMan = new PuppeteerManager(browser, page, socket, secret);
+  pupMan.startBot();
 };
 
 module.exports = bot;

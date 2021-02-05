@@ -12,10 +12,11 @@ import {
   ModalFooter,
   ModalBody,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NormalInput from "@/components/NormalInput";
 import TagInput from "@/components/TagInput";
 import PasswordInput from "@/components/PasswordInput";
+import UseSocket from "@/components/UseSocket";
 
 const SiakWar = () => {
   const [username, setUsername] = useState("");
@@ -23,25 +24,29 @@ const SiakWar = () => {
   const [listSubject, setListSubject] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ title: "", content: "" });
+  const [modalShow, setModalShow] = useState(false);
+
+  const socket = UseSocket();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("bot.message", (data) => {
+        setModalShow(true);
+        console.log(data);
+        setMessage({ title: data.title, content: data.content });
+      });
+    }
+  }, [socket]);
 
   const startBot = async () => {
     setIsLoading(true);
-    const promise = await fetch("/api/start-bot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        password,
-        subject: listSubject,
-        gui: false,
-      }),
+    socket.emit("bot.start", {
+      username,
+      password,
+      subject: listSubject,
+      gui: false,
     });
-    const response = await promise.json();
-    if (response.error === undefined) {
-      setMessage({ title: "Bot Sukses", content: response.data });
-    } else {
-      setMessage({ title: "Bot Gagal", content: response.error });
-    }
+    setMessage({ title: "", content: "" });
     setIsLoading(false);
   };
 
@@ -49,17 +54,14 @@ const SiakWar = () => {
     username === "" || password === "" || listSubject.length === 0 || isLoading;
 
   const onModalClose = () => {
-    setMessage({ title: "", message: "" });
+    setModalShow(false);
   };
 
   return (
     <Container bg="white" maxW="xl" padding="4">
       {isLoading ? <Progress size="xs" isIndeterminate /> : <></>}
 
-      <Modal
-        isOpen={message.title !== "" && message.content !== ""}
-        onClose={onModalClose}
-      >
+      <Modal isOpen={modalShow} onClose={onModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{message.title}</ModalHeader>
