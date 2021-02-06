@@ -84,12 +84,7 @@ class PuppeteerManager {
       content: "GOTO: Login",
     });
     await this.loginGoto();
-    await this.deleteCookie();
-    let cookies = { siakng_cc: null };
-    while (cookies["siakng_cc"] === null) {
-      await this.reload();
-      cookies = await this.getCredential();
-    }
+    cookies = await this.getCredential();
   };
 
   loginGoto = async () => {
@@ -118,7 +113,6 @@ class PuppeteerManager {
       this.message = "FIX YOUR USERNAME AND PASSWORD";
       this.browser.close();
     }
-    return await this.getCookie();
   };
 
   isNeedRelogin = (IRSPage, count) => {
@@ -280,16 +274,6 @@ class PuppeteerManager {
     return await this.page.evaluate(() => {
       return document.body.innerHTML;
     });
-  };
-
-  getCookie = async () => {
-    const cookies = await this.page.cookies();
-    return JSON.stringify(cookies);
-  };
-
-  deleteCookie = async () => {
-    const client = await this.page.target().createCDPSession();
-    await client.send("Network.clearBrowserCookies");
   };
 }
 
