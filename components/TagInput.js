@@ -24,6 +24,7 @@ function TagInput({ title, type, value, setValue, helper, error }) {
   };
 
   const addItem = () => {
+    if (tempValue === "") return;
     const subjTemp = [...value];
     subjTemp.push(tempValue);
     setValue(subjTemp);
@@ -36,7 +37,7 @@ function TagInput({ title, type, value, setValue, helper, error }) {
       py={2}
       isInvalid={error !== undefined && error !== null && error.length > 0}
     >
-      <HStack spacing={4}>
+      <HStack flexWrap="wrap">
         {value.map((sbj) => (
           <Tag
             size="lg"
@@ -44,6 +45,8 @@ function TagInput({ title, type, value, setValue, helper, error }) {
             borderRadius="full"
             variant="solid"
             colorScheme="green"
+            marginBottom="4px"
+            marginInlineStart="4px"
           >
             <TagLabel>{sbj}</TagLabel>
             <TagCloseButton onClick={() => deleteItem(sbj)} />

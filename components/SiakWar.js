@@ -9,7 +9,6 @@ import {
   ModalHeader,
   ModalContent,
   ModalCloseButton,
-  ModalFooter,
   ModalBody,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -33,7 +32,13 @@ const SiakWar = () => {
       socket.on("bot.message", (data) => {
         setModalShow(true);
         console.log(data);
-        setMessage({ title: data.title, content: data.content });
+        setMessage((prev) => {
+          const content = prev.content + data.content + "\n";
+          return { title: data.title, content };
+        });
+      });
+      socket.on("bot.end", () => {
+        setIsLoading(false);
       });
     }
   }, [socket]);
@@ -46,14 +51,13 @@ const SiakWar = () => {
       subject: listSubject,
       gui: false,
     });
-    setMessage({ title: "", content: "" });
-    setIsLoading(false);
   };
 
   const isDisabled =
     username === "" || password === "" || listSubject.length === 0 || isLoading;
 
   const onModalClose = () => {
+    setMessage({ title: "", content: "" });
     setModalShow(false);
   };
 
@@ -66,13 +70,16 @@ const SiakWar = () => {
         <ModalContent>
           <ModalHeader>{message.title}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>{message.content}</ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
-              Close
-            </Button>
-          </ModalFooter>
+          {isLoading ? <Progress size="xs" isIndeterminate /> : <></>}
+          <ModalBody
+            whiteSpace="pre-line"
+            background="black"
+            color="white"
+            margin="1rem"
+            borderRadius="10px"
+          >
+            {message.content}
+          </ModalBody>
         </ModalContent>
       </Modal>
 

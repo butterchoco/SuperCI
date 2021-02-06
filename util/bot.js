@@ -4,7 +4,6 @@ const { performance } = require("perf_hooks");
 class PuppeteerManager {
   constructor(browser, page, socket, secret) {
     this.socket = socket;
-    this.message = "";
     this.secret = secret;
     this.browser = browser;
     this.page = page;
@@ -23,6 +22,7 @@ class PuppeteerManager {
       "imageset",
       "stylesheet",
       "font",
+      "script",
     ];
 
     const skippedResources = [
@@ -65,26 +65,24 @@ class PuppeteerManager {
     try {
       await this.login();
       await this.attackIRSPage();
-      this.socket.emit("bot.message", {
-        title: "Progress",
-        content: this.message,
-      });
     } catch (e) {
       console.log(e);
       this.socket.emit("bot.message", {
         title: "Finished",
-        content: "BOT FAILED",
+        content: "> BOT FAILED",
       });
+    } finally {
+      this.socket.emit("bot.end");
     }
   };
 
   login = async () => {
     this.socket.emit("bot.message", {
       title: "Progress...",
-      content: "GOTO: Login",
+      content: "> GOTO: Login",
     });
     await this.loginGoto();
-    cookies = await this.getCredential();
+    await this.getCredential();
   };
 
   loginGoto = async () => {
@@ -92,16 +90,15 @@ class PuppeteerManager {
       "https://academic.ui.ac.id/main/Authentication/"
     );
     while (!LoginPage.includes("NextGeneration")) {
-      this.socket.emit("bot.message", {
-        title: "Progress...",
-        content: "Reloading Login Page....",
-      });
       LoginPage = await this.reload();
-      this.page.waitForSelector("div");
     }
   };
 
   getCredential = async () => {
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "> SUBMITTING: Credential in Academic.ui.ac.id",
+    });
     await this.page.evaluate((Secret) => {
       document.querySelector("input[name=u]").value = Secret.username;
       document.querySelector("input[name=p]").value = Secret.password;
@@ -110,7 +107,10 @@ class PuppeteerManager {
     await this.page.waitForSelector("div");
     const pageSource = await this.getPageSource();
     if (pageSource.includes("Login Failed")) {
-      this.message = "FIX YOUR USERNAME AND PASSWORD";
+      this.socket.emit("bot.message", {
+        title: "Failed!",
+        content: "> FIX YOUR USERNAME AND PASSWORD...",
+      });
       this.browser.close();
     }
   };
@@ -126,106 +126,83 @@ class PuppeteerManager {
   attackIRSPage = async () => {
     this.socket.emit("bot.message", {
       title: "Progress...",
-      content: "GOTO: Ubah IRS",
+      content: "> GOTO: Ubah IRS",
     });
     let IRSPage = await this.goto(
       "https://academic.ui.ac.id/main/CoursePlan/CoursePlanEdit"
     );
     let count = 0;
     while (!IRSPage.includes("Daftar Mata Kuliah yang Ditawarkan")) {
-      this.socket.emit("bot.message", {
-        title: "Progress...",
-        content: "Reloading IRS Page....",
-      });
       if (isNeedRelogin(IRSPage, count)) {
         this.login();
       }
       IRSPage = await this.reload();
-      this.page.waitForSelector("div");
       count++;
     }
     await this.isiIRS();
   };
 
-  checkingSubject = async () => {
-    var SubjectNotFound = "";
-    for (const subject of this.secret.subject) {
-      const isSubjectExist = await this.page.evaluate((subject) => {
-        const labelSubject = document.evaluate(
-          "//a[contains(text(), '" + subject + "')]/..",
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null
-        ).singleNodeValue;
-        if (labelSubject === null) return false;
+  checkingSubject = async (subject) => {
+    const isSubjectExist = await this.page.evaluate((subject) => {
+      const labelSubject = document.evaluate(
+        "//a[contains(text(), '" + subject + "')]/..",
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
+      if (labelSubject === null) return false;
 
-        const id = labelSubject.getAttribute("for");
-        const inputSubject = document.getElementById(id);
-        inputSubject.checked = true;
-        return true;
-      }, subject);
-      if (!isSubjectExist) {
-        this.socket.emit("bot.message", {
-          title: "Progress...",
-          content: "NOT FOUND: " + subject,
-        });
-        SubjectNotFound += `<li>${subject}</li>`;
-      }
+      const id = labelSubject.getAttribute("for");
+      const inputSubject = document.getElementById(id);
+      inputSubject.checked = true;
+      return true;
+    }, subject);
+    if (!isSubjectExist) {
       this.socket.emit("bot.message", {
         title: "Progress...",
-        content: "FINISHED CHECKING: " + subject,
+        content: "> NOT FOUND: " + subject,
       });
+      return;
     }
-    return SubjectNotFound;
+    this.socket.emit("bot.message", {
+      title: "Progress...",
+      content: "> FINISHED CHECKING: " + subject,
+    });
   };
 
   isiIRS = async () => {
     const t0 = performance.now();
     this.socket.emit("bot.message", {
       title: "Progress...",
-      content: "CHECKING: Subject",
+      content: "> CHECKING: Subject",
     });
-    const SubjectNotFound = await this.checkingSubject();
+
+    for (const subject of this.secret.subject) {
+      await this.checkingSubject(subject);
+    }
 
     this.socket.emit("bot.message", {
       title: "Progress...",
-      content: "SUBMITING: Subject",
+      content: "> SUBMITING: Subject",
     });
-    await this.page.click("[name='submit']");
-    await this.page.waitForSelector("#ti_h", { timeout: 0 });
+    await this.page.click("[name=submit]");
+    await this.page.waitForSelector("div");
+    const t1 = performance.now();
 
-    const isFinish = await this.page.evaluate((SubjectNotFound) => {
+    const isFinish = await this.page.evaluate(() => {
       const pageSource = document.body.innerHTML;
       if (!pageSource.includes("IRS berhasil tersimpan!")) return false;
-      const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "0";
-      modal.style.width = "100%";
-      modal.style.background = "green";
-      modal.style.color = "white";
-      modal.style.padding = "10px";
-      modal.innerHTML = `<strong>BOT SELESAI!!!</strong>${
-        SubjectNotFound != ""
-          ? "<p>Beberapa kelas tidak ditemukan:</p><ul>" +
-            SubjectNotFound +
-            "</ul>"
-          : ""
-      } <p>Cek kembali apakah kelas yang dipilih sudah benar!</p><p>AUTHOR: Chupasups</p>`;
-      document.body.append(modal);
       return true;
-    }, SubjectNotFound);
+    });
 
     if (isFinish) {
-      const t1 = performance.now();
       this.socket.emit("bot.message", {
-        title: "Progress...",
-        content: "BOT FINISHED",
+        title: "BOT SELESAI!!!",
+        content: `> Pengisian IRS berhasil diisi dalam waktu ${
+          Math.round(t1 - t0) / 1000
+        } s.`,
       });
-      this.message =
-        "Pengisian IRS berhasil diisi dalam waktu " +
-        (t1 - t0) +
-        " milliseconds.";
       this.browser.close();
     } else {
       await this.attackIRSPage();
@@ -243,7 +220,7 @@ class PuppeteerManager {
     } catch (e) {
       this.socket.emit("bot.message", {
         title: "Progress...",
-        content: "Reloading...",
+        content: "> Reloading...",
       });
       await goto(path);
     } finally {
@@ -262,10 +239,14 @@ class PuppeteerManager {
     } catch (e) {
       this.socket.emit("bot.message", {
         title: "Progress...",
-        content: "Reloading...",
+        content: "> Reloading...",
       });
       await reload();
     } finally {
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: "> Reloading Login Page....",
+      });
       return pageSource;
     }
   };
@@ -278,6 +259,10 @@ class PuppeteerManager {
 }
 
 const bot = async (socket, secret) => {
+  socket.emit("bot.message", {
+    title: "Starting...",
+    content: "> Initiate automation!",
+  });
   const options = {
     args: [
       "--no-sandbox",
