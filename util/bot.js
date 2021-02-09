@@ -258,7 +258,7 @@ class PuppeteerManager {
   };
 }
 
-const bot = async (socket, secret) => {
+const Bot = async (socket, secret) => {
   socket.emit("bot.message", {
     title: "Starting...",
     content: "> Initiate automation!",
@@ -282,4 +282,4 @@ const bot = async (socket, secret) => {
   pupMan.startBot();
 };
 
-module.exports = bot;
+module.exports = Bot;
