@@ -17,13 +17,19 @@ import TagInput from "@/components/TagInput";
 import PasswordInput from "@/components/PasswordInput";
 import UseSocket from "@/components/UseSocket";
 
-const SiakWar = () => {
+const SiakWar = ({ token }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [listSubject, setListSubject] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ title: "", content: "" });
   const [modalShow, setModalShow] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      fetchCourses(token);
+    }
+  }, []);
 
   const socket = UseSocket();
 
@@ -42,6 +48,18 @@ const SiakWar = () => {
       });
     }
   }, [socket]);
+
+  const fetchCourses = (token) => {
+    fetch("https://ristek.cs.ui.ac.id/susunjadwal/api/user_schedules/" + token)
+      .then((response) => response.json())
+      .then((data) => {
+        const temp = [];
+        data.user_schedule.schedule_items.map((data) => {
+          if (!temp.includes(data.name)) temp.push(data.name);
+        });
+        setListSubject(temp);
+      });
+  };
 
   const startBot = async () => {
     setIsLoading(true);
@@ -62,7 +80,7 @@ const SiakWar = () => {
   };
 
   return (
-    <Container bg="white" maxW="xl" padding="4">
+    <Container bg="white" padding="4">
       {isLoading ? <Progress size="xs" isIndeterminate /> : <></>}
 
       <Modal isOpen={modalShow} onClose={onModalClose}>

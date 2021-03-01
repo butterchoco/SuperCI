@@ -13,8 +13,8 @@ const SendMail = (to, subject, text, html, fn) => {
     from: process.env.NODEMAILER_EMAIL,
     to,
     subject,
-    text: text ?? "",
-    html: html ?? "",
+    text: text || "",
+    html: html || "",
   };
 
   transporter.sendMail(message, fn);
