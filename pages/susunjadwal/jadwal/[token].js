@@ -41,8 +41,6 @@ export default function index() {
   if (!token) return null;
   else if (!tokenSite || !isPassAble(tokenSite)) return <>You lost</>;
 
-  console.log(isPassAble(tokenSite));
-
   return (
     <VStack
       minHeight="100vh"
