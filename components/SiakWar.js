@@ -58,7 +58,8 @@ const SiakWar = ({ token }) => {
           if (!temp.includes(data.name)) temp.push(data.name);
         });
         setListSubject(temp);
-      });
+      })
+      .catch((e) => console.log(e));
   };
 
   const startBot = async () => {
