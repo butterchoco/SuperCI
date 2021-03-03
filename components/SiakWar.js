@@ -4,6 +4,8 @@ import {
   Button,
   Heading,
   Progress,
+  Text,
+  Box,
   Modal,
   ModalOverlay,
   ModalHeader,
@@ -96,8 +98,12 @@ const SiakWar = ({ token }) => {
             color="white"
             margin="1rem"
             borderRadius="10px"
+            maxHeight="240px"
+            display="flex"
+            flexDirection="column-reverse"
+            overflowY="auto"
           >
-            {message.content}
+            <Box>{message.content}</Box>
           </ModalBody>
         </ModalContent>
       </Modal>

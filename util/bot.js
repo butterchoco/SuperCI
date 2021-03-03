@@ -7,6 +7,7 @@ class PuppeteerManager {
     this.secret = secret;
     this.browser = browser;
     this.page = page;
+    this.count = 1;
     this.init();
   }
 
@@ -68,9 +69,10 @@ class PuppeteerManager {
     } catch (e) {
       console.log(e);
       this.socket.emit("bot.message", {
-        title: "Finished",
-        content: "> BOT FAILED",
+        title: "FAILED",
+        content: "> " + e,
       });
+      await this.browser.close();
     } finally {
       this.socket.emit("bot.end");
     }
@@ -89,6 +91,10 @@ class PuppeteerManager {
     let LoginPage = await this.goto(
       "https://academic.ui.ac.id/main/Authentication/"
     );
+    if (LoginPage.includes("Logout Counter")) {
+      await this.attackIRSPage();
+      return;
+    }
     while (!LoginPage.includes("NextGeneration")) {
       LoginPage = await this.reload();
     }
@@ -107,37 +113,45 @@ class PuppeteerManager {
     await this.page.waitForSelector("div");
     const pageSource = await this.getPageSource();
     if (pageSource.includes("Login Failed")) {
-      this.socket.emit("bot.message", {
-        title: "Failed!",
-        content: "> FIX YOUR USERNAME AND PASSWORD...",
-      });
-      this.browser.close();
+      throw "FIX YOUR USERNAME AND PASSWORD...";
     }
   };
 
-  isNeedRelogin = (IRSPage, count) => {
+  isNeedRelogin = (IRSPage) => {
     return (
       IRSPage.includes("Term 3") ||
       IRSPage.includes("No role") ||
-      count % 100 === 0
+      this.count % 100 === 0
     );
   };
 
   attackIRSPage = async () => {
     this.socket.emit("bot.message", {
       title: "Progress...",
-      content: "> GOTO: Ubah IRS",
+      content: "> GOTO: Ubah IRS Page",
     });
     let IRSPage = await this.goto(
       "https://academic.ui.ac.id/main/CoursePlan/CoursePlanEdit"
     );
-    let count = 0;
     while (!IRSPage.includes("Daftar Mata Kuliah yang Ditawarkan")) {
-      if (isNeedRelogin(IRSPage, count)) {
-        this.login();
+      this.socket.emit("bot.message", {
+        title: "Progress...",
+        content: `> Reload IRS Page ${this.count} iterations !`,
+      });
+      if (this.isNeedRelogin(IRSPage)) {
+        this.socket.emit("bot.message", {
+          title: "Progress...",
+          content: "> Need Relogin !",
+        });
+        this.count++;
+        await this.login();
+        break;
+      }
+      if (this.count % 3600 === 0) {
+        throw "TIMEOUT after 3600 iterations";
       }
       IRSPage = await this.reload();
-      count++;
+      this.count++;
     }
     await this.isiIRS();
   };
@@ -220,7 +234,7 @@ class PuppeteerManager {
     } catch (e) {
       this.socket.emit("bot.message", {
         title: "Progress...",
-        content: "> Reloading...",
+        content: "> Reloading GOTO FAILED...",
       });
       await goto(path);
     } finally {
@@ -239,14 +253,10 @@ class PuppeteerManager {
     } catch (e) {
       this.socket.emit("bot.message", {
         title: "Progress...",
-        content: "> Reloading...",
+        content: "> Reloading RELOAD FAILED...",
       });
       await reload();
     } finally {
-      this.socket.emit("bot.message", {
-        title: "Progress...",
-        content: "> Reloading Login Page....",
-      });
       return pageSource;
     }
   };
@@ -265,6 +275,7 @@ const Bot = async (socket, secret) => {
   });
   const options = {
     args: [
+      "--ignore-certificate-errors",
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
@@ -273,6 +284,9 @@ const Bot = async (socket, secret) => {
       "--proxy-server='direct://'",
       "--proxy-bypass-list=*",
       "--window-size=1196x932",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
     ],
     headless: !secret.gui,
   };
