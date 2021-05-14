@@ -1,5 +1,5 @@
-const emailTemplate = require("../util/template");
-const SendMail = require("../util/SendMail");
+const EmailTemplate = require("../util/Email/Template");
+const SendMail = require("../util/Email/SendMail");
 
 const ActivationController = (req, res) => {
   const { email } = req.body;
@@ -8,7 +8,7 @@ const ActivationController = (req, res) => {
     email,
     "[PENTING] Aktivasi akun kamu sekarang",
     "",
-    emailTemplate,
+    EmailTemplate,
     () => {
       res.end();
     }

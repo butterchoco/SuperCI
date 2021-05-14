@@ -1,4 +1,4 @@
-const emailTemplate = `
+const EmailTemplate = `
 <html lang="en">
 <head>
 <style>
@@ -44,6 +44,6 @@ const emailTemplate = `
     </div>
 </body>
 </html>
-`
+`;
 
-module.exports = emailTemplate
+module.exports = EmailTemplate;
