@@ -1,8 +1,9 @@
 const logger = require("../util/Log/logger");
+const { APP_NAME } = require("../util/Constants");
 
 const HomeController = (_, res) => {
   logger.debug.debug("Route to home");
-  res.status(200).send("Hello World");
+  res.render("pages/index", { AppName: APP_NAME });
 };
 
 module.exports = HomeController;

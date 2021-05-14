@@ -7,6 +7,7 @@ const router = require("./routes/index");
 const logger = require("./util/Log/logger");
 
 createSocketConnection(io);
+app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
