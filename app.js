@@ -5,6 +5,7 @@ const io = require("socket.io")(server);
 const createSocketConnection = require("./socket.io/index");
 const router = require("./routes/index");
 const logger = require("./util/Log/logger");
+var cookieParser = require("cookie-parser");
 
 createSocketConnection(io);
 app.set("view engine", "ejs");
@@ -13,5 +14,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use("/", router);
 app.use(logger.express);
+app.use(cookieParser());
 
 module.exports = app;

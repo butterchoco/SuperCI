@@ -1,6 +1,6 @@
 const log4js = require("log4js");
 
-const LOG_PATH = "./util/Log/out";
+const LOG_PATH = "./logs";
 
 log4js.configure({
   appenders: {
