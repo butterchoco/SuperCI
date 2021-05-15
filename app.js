@@ -1,14 +1,3 @@
-const express = require("express");
-const app = express();
-const server = require("http").createServer(app);
-const io = require("socket.io")(server);
-const createSocketConnection = require("./socket.io/index");
-const router = require("./routes/index");
-const logger = require("./util/Log/logger");
-var cookieParser = require("cookie-parser");
-var cors = require("cors");
-const createError = require("http-errors");
-
 var whitelist = ["*"];
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
@@ -20,7 +9,36 @@ var corsOptionsDelegate = function (req, callback) {
   callback(null, corsOptions);
 };
 
+const express = require("express");
+const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: corsOptionsDelegate,
+});
+const createSocketConnection = require("./socket.io/index");
+const router = require("./routes/index");
+const logger = require("./util/Log/logger");
+var cookieParser = require("cookie-parser");
+var cors = require("cors");
+const createError = require("http-errors");
+const { instrument } = require("@socket.io/admin-ui");
+const bcrypt = require("bcrypt");
+
 createSocketConnection(io);
+
+const saltRounds = 10;
+const password = "admin";
+let hashPassword = "";
+bcrypt.hash(password, saltRounds, function (err, hash) {
+  hashPassword = hash;
+  instrument(io, {
+    auth: {
+      type: "basic",
+      username: "admin",
+      password: hashPassword,
+    },
+  });
+});
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
