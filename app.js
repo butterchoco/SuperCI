@@ -10,9 +10,7 @@ const createError = require("http-errors");
 const { instrument } = require("@socket.io/admin-ui");
 const bcrypt = require("bcrypt");
 
-const corsOptions = {
-  origin: ["*"],
-};
+const corsOptions = { origin: ["*"] };
 const io = require("socket.io")(server, {
   cors: corsOptions,
 });
