@@ -1,45 +1,43 @@
 {
-  "name": "boilerplate-website",
-  "version": "0.1.1",
   "private": true,
-  "main": "server.js",
+  "name": "test-web",
+  "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon server.js",
-    "test": "cross-env NODE_ENV=test jest"
+    "build": "preact build",
+    "serve": "sirv build --port 8080 --cors --single",
+    "dev": "preact watch",
+    "dev:server": "cd server && npm run start",
+    "start": "npm run build && npm run dev:server",
+    "lint": "eslint src",
+    "test": "jest"
   },
-  "dependencies": {
-    "@prisma/client": "^2.22.1",
-    "@socket.io/admin-ui": "^0.1.1",
-    "bcrypt": "^5.0.1",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "ejs": "^3.1.6",
-    "express": "^4.17.1",
-    "log4js": "^6.3.0",
-    "nodemailer": "^6.4.17",
-    "puppeteer": "^9.1.1",
-    "puppeteer-core": "^9.1.1",
-    "socket.io": "^3.1.1",
-    "socket.io-client": "^3.1.1"
+  "eslintConfig": {
+    "extends": "preact",
+    "ignorePatterns": [
+      "build/"
+    ]
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "cross-env": "^7.0.3",
-    "jest": "^26.6.3",
-    "nodemon": "^2.0.7",
-    "prisma": "^2.22.1",
-    "superagent": "^6.1.0",
-    "supertest": "^6.1.3"
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-preact-pure": "^2.0.0",
+    "eslint": "^6.0.1",
+    "eslint-config-preact": "^1.1.0",
+    "jest": "^24.9.0",
+    "jest-preset-preact": "^1.0.0",
+    "preact-cli": "^3.0.0",
+    "sirv-cli": "1.0.3"
+  },
+  "dependencies": {
+    "preact": "^10.3.2",
+    "preact-render-to-string": "^5.1.4",
+    "preact-router": "^3.2.1"
   },
   "jest": {
-    "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "testMatch": [
-      "<rootDir>/tests/unit/**/*.spec.js"
+    "preset": "jest-preset-preact",
+    "setupFiles": [
+      "<rootDir>/tests/__mocks__/browserMocks.js",
+      "<rootDir>/tests/__mocks__/setupTests.js"
     ]
   }
 }
