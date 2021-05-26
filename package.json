@@ -10,7 +10,7 @@
     "dev:server": "cd server && npm run start",
     "start": "npm run build && npm run dev:server",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "eslintConfig": {
     "extends": "preact",
@@ -35,6 +35,13 @@
   },
   "jest": {
     "preset": "jest-preset-preact",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html",
+      "text",
+      "cobertura"
+    ],
     "setupFiles": [
       "<rootDir>/tests/__mocks__/browserMocks.js",
       "<rootDir>/tests/__mocks__/setupTests.js"
