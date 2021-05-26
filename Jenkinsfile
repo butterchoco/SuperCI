@@ -11,6 +11,11 @@ pipeline {
       steps {
         sh 'npm test'
       }
+      post {
+        always {
+          step([$class: 'CoberturaPublisher', coberturaReportFile: 'coverage/cobertura-coverage.xml'])
+        }
+      }
     }
 
     stage('Build') {
@@ -21,10 +26,4 @@ pipeline {
 
   }
 
-  post {
-        always {
-            archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
-            junit 'build/reports/**/*.xml'
-        }
-    }
 }

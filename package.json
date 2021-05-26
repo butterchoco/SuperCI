@@ -35,11 +35,24 @@
   },
   "jest": {
     "preset": "jest-preset-preact",
-    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!coverage/**",
+      "!node_modules/**",
+      "!src/index.js",
+      "!src/sw.js",
+      "!server/tests/**",
+      "!server/server.js",
+      "!tests/**",
+      "!public/**",
+      "!build/**"
+    ],
     "coverageReporters": [
-      "json",
-      "html",
       "text",
+      "lcov",
+      "json",
+      "text",
+      "clover",
       "cobertura"
     ],
     "setupFiles": [
