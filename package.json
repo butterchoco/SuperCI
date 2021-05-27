@@ -47,9 +47,9 @@
       "!public/**",
       "!build/**"
     ],
-    "coverageReporters": [
-      "text",
-      "html"
+    "reporters": [
+      "default",
+      "jest-junit"
     ],
     "setupFiles": [
       "<rootDir>/tests/__mocks__/browserMocks.js",

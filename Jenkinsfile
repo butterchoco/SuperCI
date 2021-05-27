@@ -13,7 +13,7 @@ pipeline {
       }
       post {
         always {
-          junit 'coverage/*.xml'
+          junit 'junit.xml'
         }
       }
     }
