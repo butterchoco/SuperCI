@@ -49,11 +49,7 @@
     ],
     "coverageReporters": [
       "text",
-      "lcov",
-      "json",
-      "text",
-      "clover",
-      "cobertura"
+      "html"
     ],
     "setupFiles": [
       "<rootDir>/tests/__mocks__/browserMocks.js",
