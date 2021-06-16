@@ -13,14 +13,14 @@ pipeline {
       }
       post {
         always {
-          junit 'junit.xml'
+          junit 'client/junit.xml'
         }
       }
     }
 
-    stage('Build') {
+    stage('Deploy') {
       steps {
-        sh 'npm run build'
+        sh 'docker-compose -f docker-compose.yml up -d --build'
       }
     }
 

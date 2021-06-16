@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
@@ -17,11 +18,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger.express);
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "..", "build")));
-app.use(express.static(__dirname + "/public"));
 app.use("/api", router);
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("hello");
 });
 
 module.exports = app;

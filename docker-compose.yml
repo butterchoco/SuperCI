@@ -1,0 +1,21 @@
+version: "3.4"
+
+services:
+  butterchocomyid_frontend:
+    image: butterchocomyid_frontend
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+  butterchocomyid_backend:
+    image: butterchocomyid_backend
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8000:8000
