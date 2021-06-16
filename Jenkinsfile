@@ -1,15 +1,15 @@
 pipeline {
   agent any
   stages {
-    stage('Install Dependency') {
+    stage('Install Client Dependency') {
       steps {
-        sh 'npm install'
+        sh 'cd client && npm install'
       }
     }
 
-    stage('Test') {
+    stage('Test Client') {
       steps {
-        sh 'npm test'
+        sh 'cd client && npm test'
       }
       post {
         always {
