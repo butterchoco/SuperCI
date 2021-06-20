@@ -4,7 +4,7 @@ name: default
 
 platform:
   os: linux
-  arch: armv7
+  arch: arm
 
 steps:
   - name: Install Client Dependency
