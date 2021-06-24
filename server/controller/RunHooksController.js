@@ -5,6 +5,9 @@ var { exec } = require("child_process");
 const RunHooksController = (req, res) => {
   logger.debug.debug("Route to home");
   console.log(req.body);
+  const { repository, pusher } = req.body;
+  const { clone_url } = repository;
+  const { username } = pusher;
   //verify that the payload is a push from the correct repo
   //verify repository.name == 'wackcoon-device' or repository.full_name = 'DanielEgan/wackcoon-device'
   // console.log(

@@ -2,7 +2,7 @@
 
 ## CLI Commands
 
-``` bash
+```bash
 # install dependencies
 npm install
 
@@ -18,5 +18,8 @@ npm run serve
 # run tests with jest and enzyme
 npm run test
 ```
+
+Example Database URL for Postgres:
+DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
 
 For detailed explanation on how things work, checkout the [CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).

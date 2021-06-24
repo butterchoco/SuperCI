@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Heading, HStack, VStack, Button } from "@chakra-ui/react";
 import { MdSync } from "react-icons/md";
 import RepositoryItem from "../../components/RepositoryItem";
 import { clientGet } from "../../utils/api";
 
-const baseUrl = process.env.URL || "http://localhost:8000";
 const Home = () => {
   const [repos, setRepos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchRepos();
+  }, []);
 
   const fetchRepos = async () => {
     setIsLoading(true);
@@ -46,7 +49,9 @@ const Home = () => {
       </HStack>
       <VStack mt="2">
         {repos.length > 0 ? (
-          repos.map((data) => <RepositoryItem data={data} key={data.id} />)
+          repos.map((data) => (
+            <RepositoryItem data={data} key={data.id} isSyncing={isLoading} />
+          ))
         ) : (
           <Heading size="sm" color="gray.500">
             Tidak ada repository

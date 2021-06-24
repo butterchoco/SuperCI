@@ -1,14 +1,13 @@
-const baseUrl = process.env.URL || "http://localhost:8000";
-const token = "707f35e44e362069a9fd62e688a12accd80467ae";
+import { BASE_URL, TOKEN } from "./Constants";
 
 export const clientGet = async (path, header) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const promise = await fetch(baseUrl + path, {
+      const promise = await fetch(BASE_URL + path, {
         method: "GET",
         headers: Object.assign(
           {
-            Authorization: "token " + token,
+            Authorization: "token " + TOKEN,
           },
           header
         ),
@@ -23,12 +22,13 @@ export const clientGet = async (path, header) => {
 export const clientPost = (path, body, header = {}) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const promise = await fetch(baseUrl + path, {
+      const promise = await fetch(BASE_URL + path, {
         method: "POST",
-        body,
+        body: JSON.stringify(body),
         headers: Object.assign(
           {
-            Authorization: "token " + token,
+            Authorization: "token " + TOKEN,
+            "Content-Type": "application/json",
           },
           header
         ),

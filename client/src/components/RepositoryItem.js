@@ -7,10 +7,11 @@ import {
   Button,
   SkeletonText,
 } from "@chakra-ui/react";
+import { BASE_URL } from "../utils/constants";
 
 import { clientGet, clientPost } from "../utils/api";
 
-const RepositoryItem = ({ data }) => {
+const RepositoryItem = ({ data, isSyncing }) => {
   const { name, owner } = data;
   const [activated, setActivated] = useState(null);
   const [commit, setCommit] = useState(null);
@@ -18,7 +19,7 @@ const RepositoryItem = ({ data }) => {
 
   useEffect(() => {
     fetchHooks();
-  }, []);
+  }, [isSyncing]);
 
   const fetchHooks = async () => {
     const response = await clientGet(
@@ -33,20 +34,35 @@ const RepositoryItem = ({ data }) => {
   };
 
   const activateRepo = async () => {
-    const response = clientPost(`/repos/${owner.username}/${name}/hooks`, {
+    setIsLoading(true);
+    const response = clientPost(`/api/repos/${owner.username}/${name}/hooks`, {
       active: true,
       branch_filter: "*",
       config: {
-        url: "https://project.supri.dev/api/hooks/create/" + name,
+        url: `http://192.168.100.7:8000/api/repos/${owner.username}/${name}/hooks/run`,
         content_type: "json",
       },
-      events: ["push"],
+      events: [
+        "create",
+        "delete",
+        "push",
+        "pull_request",
+        "pull_request_assign",
+        "pull_request_label",
+        "pull_request_milestone",
+        "pull_request_comment",
+        "pull_request_review_approved",
+        "pull_request_review_rejected",
+        "pull_request_review_comment",
+        "pull_request_sync",
+      ],
       type: "gitea",
     })
       .then((res) => res)
       .catch((err) => err);
 
-    if (response.err) return;
+    if (response.err || response.message) return;
+    setIsLoading(false);
     setActivated(true);
   };
 
@@ -85,6 +101,8 @@ const RepositoryItem = ({ data }) => {
       {!activated && (
         <Button
           onClick={activateRepo}
+          isLoading={isLoading}
+          loadingText="Activating..."
           colorScheme="blue"
           variant="outline"
           size="sm"

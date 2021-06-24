@@ -7,6 +7,7 @@ services:
       context: ./client
       dockerfile: ./Dockerfile
     environment:
+      GIT_URL: https://git.supri.dev
       NODE_ENV: production
     ports:
       - 3000:3000
@@ -17,5 +18,6 @@ services:
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
+      GIT_URL: https://git.supri.dev
     ports:
       - 8000:8000
