@@ -1,0 +1,8 @@
+client/build
+client/*.log
+client/coverage
+client/junit.xml
+client/node_modules
+server/node_modules
+server/node_modules
+server/logs

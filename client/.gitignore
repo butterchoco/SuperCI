@@ -1,8 +1,0 @@
-node_modules
-/build
-/*.log
-
-server/node_modules
-server/logs
-coverage
-/junit.xml
