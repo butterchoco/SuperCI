@@ -7,7 +7,7 @@ import {
   Button,
   SkeletonText,
 } from "@chakra-ui/react";
-import { NEXT_PUBLIC_BASE_URL, NEXT_PUBLIC_TOKEN } from "../utils/constants";
+import { NEXT_PUBLIC_BASE_URL, TOKEN } from "../utils/constants";
 
 const RepositoryItem = ({ data, isSyncing }) => {
   const { name, owner } = data;
@@ -24,9 +24,6 @@ const RepositoryItem = ({ data, isSyncing }) => {
       `${NEXT_PUBLIC_BASE_URL}/api/repos/${owner.username}/${name}/hooks`,
       {
         method: "GET",
-        headers: {
-          Authorization: "token " + NEXT_PUBLIC_TOKEN,
-        },
       }
     )
       .then((res) => res.json())

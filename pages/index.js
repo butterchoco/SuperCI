@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Heading, HStack, VStack, Button } from "@chakra-ui/react";
 import { MdSync } from "react-icons/md";
 import RepositoryItem from "../components/RepositoryItem";
-import { NEXT_PUBLIC_BASE_URL, NEXT_PUBLIC_TOKEN } from "../utils/constants";
+import { NEXT_PUBLIC_BASE_URL } from "../utils/constants";
 
 const Home = () => {
   const [repos, setRepos] = useState([]);
@@ -14,12 +14,8 @@ const Home = () => {
 
   const fetchRepos = async () => {
     setIsLoading(true);
-    console.log("NEXT_PUBLIC_TOKEN ", NEXT_PUBLIC_TOKEN);
     const response = await fetch(`${NEXT_PUBLIC_BASE_URL}/api/user/repos`, {
       method: "GET",
-      headers: {
-        Authorization: "token " + NEXT_PUBLIC_TOKEN,
-      },
     })
       .then((res) => res.json())
       .then((res) => res)

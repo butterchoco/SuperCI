@@ -1,4 +1,7 @@
-const { NEXT_PUBLIC_GIT_URL } = require("../../../../../utils/constants");
+const {
+  NEXT_PUBLIC_GIT_URL,
+  TOKEN,
+} = require("../../../../../utils/constants");
 
 const GetRepositoryController = async (req, res) => {
   const { owner, repo } = req.params;
@@ -11,7 +14,7 @@ const GetRepositoryController = async (req, res) => {
     {
       method: "GET",
       headers: {
-        Authorization: token,
+        Authorization: "token " + TOKEN,
       },
     }
   )

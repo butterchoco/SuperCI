@@ -6,10 +6,12 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      args:
+        PORT: 1234
+        NEXT_PUBLIC_BASE_URL: https://cicd.supri.dev
+        NEXT_PUBLIC_GIT_URL: https://git.supri.dev
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_BASE_URL: http://localhost:1234
-      NEXT_PUBLIC_GIT_URL: https://git.supri.dev
-      NEXT_PUBLIC_TOKEN: 707f35e44e362069a9fd62e688a12accd80467ae
+      TOKEN: 707f35e44e362069a9fd62e688a12accd80467ae
     ports:
-      - 1234:3000
+      - 1234:1234

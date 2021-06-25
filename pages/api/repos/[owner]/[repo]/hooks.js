@@ -1,9 +1,7 @@
-import { NEXT_PUBLIC_GIT_URL } from "../../../../../utils/constants";
+import { NEXT_PUBLIC_GIT_URL, TOKEN } from "../../../../../utils/constants";
 
 const GetHooksController = async (req, res) => {
   const { owner, repo } = req.query;
-  const token = req.headers["authorization"];
-  if (!token) return res.status(403).json({ error: "Not Authorize" });
 
   let response;
   if (req.method === "POST") {
@@ -14,7 +12,7 @@ const GetHooksController = async (req, res) => {
         method: "GET",
         body: JSON.stringify(req.body),
         headers: {
-          Authorization: token,
+          Authorization: "token " + TOKEN,
         },
       }
     )
@@ -38,7 +36,7 @@ const GetHooksController = async (req, res) => {
       {
         method: "GET",
         headers: {
-          Authorization: token,
+          Authorization: "token " + TOKEN,
         },
       }
     )

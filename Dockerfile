@@ -1,19 +1,17 @@
-FROM node:12
+# Dockerfile
+FROM node:12.18.0-alpine
+WORKDIR /app/
 
-# Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+# here we are reading the value from the build args and inserting into the environment variables
+ARG CI_URL
+ENV NEXT_PUBLIC_BASE_URL=${CI_URL}
+ARG GIT_URL
+ENV NEXT_PUBLIC_GIT_URL=${GIT_URL}
+ARG PORT
+ENV PORT=${PORT}
 
-# Installing dependencies
-COPY package*.json /usr/src/app/
-RUN npm install
-
-# Copying source files
-COPY . /usr/src/app
-
-# Building app
+COPY . .
+RUN npm i
 RUN npm run build
-EXPOSE 9900
-
-# Running the app
-CMD "npm" "start" ""
+EXPOSE ${PORT}
+CMD npm run start -- -p ${PORT}
