@@ -1,23 +1,15 @@
 version: "3.4"
 
 services:
-  butterchocomyid_frontend:
-    image: butterchocomyid_frontend
+  superci:
+    image: superci
     build:
-      context: ./client
-      dockerfile: ./Dockerfile
-    environment:
-      GIT_URL: https://git.supri.dev
-      NODE_ENV: production
-    ports:
-      - 3000:3000
-  butterchocomyid_backend:
-    image: butterchocomyid_backend
-    build:
-      context: ./server
+      context: .
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
-      GIT_URL: https://git.supri.dev
+      NEXT_PUBLIC_BASE_URL: http://localhost:1234
+      NEXT_PUBLIC_GIT_URL: https://git.supri.dev
+      NEXT_PUBLIC_TOKEN: 707f35e44e362069a9fd62e688a12accd80467ae
     ports:
-      - 8000:8000
+      - 1234:3000

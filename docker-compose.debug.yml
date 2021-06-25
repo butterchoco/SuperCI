@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  butterchocomyid:
-    image: butterchocomyid
+  superci:
+    image: superci
     build:
       context: .
       dockerfile: ./Dockerfile
