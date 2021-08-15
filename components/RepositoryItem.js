@@ -6,16 +6,17 @@ import {
   Text,
   Button,
   SkeletonText,
+  useToast,
 } from "@chakra-ui/react";
 import ModalCustom from "./ModalCustom";
-import { getBase } from "../utils/api";
+import { getBase, postBase } from "../utils/api";
 
 const RepositoryItem = ({ data, isSyncing }) => {
   const { name, owner } = data;
   const [activated, setActivated] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
   const [repo, setRepo] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
     fetchData();
@@ -30,7 +31,7 @@ const RepositoryItem = ({ data, isSyncing }) => {
   const fetchRepo = async () => {
     const response = await getBase(`/api/repos/${owner.username}/${name}`);
     if (response.error) {
-      setError(response.error);
+      toastCustom("Error", response.error, "error");
       return;
     }
     console.log(response);
@@ -42,12 +43,23 @@ const RepositoryItem = ({ data, isSyncing }) => {
       `/api/repos/${owner.username}/${name}/hooks`
     );
     if (response.error) {
-      setError(response.error);
+      touch;
+      toastCustom("Error", response.error, "error");
       return;
     }
     console.log(response);
     if (response.length > 0) setActivated(true);
     else setActivated(false);
+  };
+
+  const toastCustom = (title, description, status) => {
+    toast({
+      title,
+      description,
+      status,
+      duration: 9000,
+      isClosable: true,
+    });
   };
 
   const activateRepo = async () => {
@@ -80,9 +92,10 @@ const RepositoryItem = ({ data, isSyncing }) => {
     );
     setIsLoading(false);
     if (response.error) {
-      setError(response.error);
+      toastCustom("Error", response.error, "error");
       return;
     }
+    toastCustom("Success", "Action Completed", "success");
     setActivated(true);
   };
 
@@ -102,12 +115,6 @@ const RepositoryItem = ({ data, isSyncing }) => {
       justifyContent="space-between"
       alignItems="center"
     >
-      <ModalCustom
-        title="Notification"
-        body={error}
-        isOpen={error || error !== ""}
-        onClose={() => setError("")}
-      />
       <VStack alignItems="flex-start" justifyContent="center">
         <Heading size="sm">{name}</Heading>
         {activated && (
