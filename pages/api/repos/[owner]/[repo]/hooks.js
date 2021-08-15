@@ -1,54 +1,25 @@
-import { NEXT_PUBLIC_GIT_URL, TOKEN } from "../../../../../utils/constants";
+import { postGit, getGit } from "../../../../../utils/api";
+import { exec } from "child_process";
 
 const GetHooksController = async (req, res) => {
   const { owner, repo } = req.query;
 
   let response;
   if (req.method === "POST") {
-    console.log("POST");
-    response = await fetch(
-      `${NEXT_PUBLIC_GIT_URL}/repos/${owner}/${repo}/hooks`,
-      {
-        method: "GET",
-        body: JSON.stringify(req.body),
-        headers: {
-          Authorization: "token " + TOKEN,
-        },
-      }
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => err);
-
-    if (response.message) return res.status(400).json(response);
-
-    exec(
-      `git -C /data/git clone ${process.env.NEXT_PUBLIC_GIT_URL}/${owner}/${repo}.git`,
-      execCallback
+    response = await postGit(
+      `/repos/${owner}/${repo}/hooks`,
+      JSON.stringify(req.body)
     );
-  } else {
-    response = await fetch(
-      `${NEXT_PUBLIC_GIT_URL}/repos/${owner}/${repo}/hooks`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: "token " + TOKEN,
-        },
-      }
-    )
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => err);
 
-    if (response.message) return res.status(400).json(response);
+    if (response.error) return res.status(400).send(response);
+    else {
+      exec(
+        `git -C ./data/git clone ${process.env.NEXT_PUBLIC_GIT_URL}/${owner}/${repo}.git`
+      );
+    }
+  } else {
+    response = await getGit(`/repos/${owner}/${repo}/hooks`);
+    if (response.error) return res.status(400).send(response);
   }
 
   res.send(response);

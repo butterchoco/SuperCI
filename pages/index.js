@@ -22,6 +22,7 @@ const Home = () => {
       .catch((err) => err);
     setRepos(response);
     setIsLoading(false);
+    console.log(response);
   };
 
   return (

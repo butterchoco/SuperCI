@@ -7,43 +7,58 @@ import {
   Button,
   SkeletonText,
 } from "@chakra-ui/react";
-import { NEXT_PUBLIC_BASE_URL, TOKEN } from "../utils/constants";
+import ModalCustom from "./ModalCustom";
+import { getBase } from "../utils/api";
 
 const RepositoryItem = ({ data, isSyncing }) => {
   const { name, owner } = data;
   const [activated, setActivated] = useState(null);
-  const [commit, setCommit] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [repo, setRepo] = useState(null);
 
   useEffect(() => {
-    fetchHooks();
+    fetchData();
   }, [isSyncing]);
 
-  const fetchHooks = async () => {
-    const response = await fetch(
-      `${NEXT_PUBLIC_BASE_URL}/api/repos/${owner.username}/${name}/hooks`,
-      {
-        method: "GET",
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => res)
-      .catch((err) => err);
-    if (response.length !== 0) setActivated(true);
-    else setActivated(false);
+  const fetchData = async () => {
+    await fetchRepo();
+    await fetchHooks();
     setIsLoading(false);
+  };
+
+  const fetchRepo = async () => {
+    const response = await getBase(`/api/repos/${owner.username}/${name}`);
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
     console.log(response);
+    setRepo(response);
+  };
+
+  const fetchHooks = async () => {
+    const response = await getBase(
+      `/api/repos/${owner.username}/${name}/hooks`
+    );
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
+    console.log(response);
+    if (response.length > 0) setActivated(true);
+    else setActivated(false);
   };
 
   const activateRepo = async () => {
     setIsLoading(true);
-    const response = fetch(
-      `${NEXT_PUBLIC_BASE_URL}/api/repos/${owner.username}/${name}/hooks`,
-      {
+    const response = await postBase(
+      `/api/repos/${owner.username}/${name}/hooks`,
+      JSON.stringify({
         active: true,
         branch_filter: "*",
         config: {
-          url: `http://192.168.100.7:8000/api/repos/${owner.username}/${name}/hooks/run`,
+          url: `http://localhost:8000/api/repos/${owner.username}/${name}/hooks/run`,
           content_type: "json",
         },
         events: [
@@ -61,13 +76,13 @@ const RepositoryItem = ({ data, isSyncing }) => {
           "pull_request_sync",
         ],
         type: "gitea",
-      }
-    )
-      .then((res) => res)
-      .catch((err) => err);
-
-    if (response.err || response.message) return;
+      })
+    );
     setIsLoading(false);
+    if (response.error) {
+      setError(response.error);
+      return;
+    }
     setActivated(true);
   };
 
@@ -78,7 +93,6 @@ const RepositoryItem = ({ data, isSyncing }) => {
       </Box>
     );
 
-  console.log(name, activated);
   return (
     <Box
       width="100%"
@@ -88,6 +102,12 @@ const RepositoryItem = ({ data, isSyncing }) => {
       justifyContent="space-between"
       alignItems="center"
     >
+      <ModalCustom
+        title="Notification"
+        body={error}
+        isOpen={error || error !== ""}
+        onClose={() => setError("")}
+      />
       <VStack alignItems="flex-start" justifyContent="center">
         <Heading size="sm">{name}</Heading>
         {activated && (
